@@ -73,35 +73,30 @@ const displayMovement = function (movements) {
   });
 };
 
-displayMovement(account1.movements);
-
 function calcDisplayBalance(movements) {
   const balance = movements.reduce((acc, mov) => {
     return acc + mov;
   }, 0);
   labelBalance.textContent = `${balance}£`;
 }
-calcDisplayBalance(account1.movements);
 
-const calcDisplaySummary = function (movements) {
-  const income = movements
+const calcDisplaySummary = function (acc) {
+  const income = acc.movements
     .filter(mov => mov > 0)
     .reduce((acc, mov) => acc + mov, 0);
   labelSumIn.textContent = `${income}£`;
 
-  const out = movements
+  const out = acc.movements
     .filter(mov => mov < 0)
     .reduce((acc, mov) => acc + mov, 0);
   labelSumOut.textContent = `${Math.abs(out)}£`;
 
-  const interest = movements
+  const interest = acc.movements
     .filter(mov => mov > 0)
-    .map(deposit => (deposit * 1.2) / 100)
+    .map(deposit => (deposit * acc.interestRate) / 100)
     .reduce((acc, int) => acc + int, 0);
   labelSumInterest.textContent = `${interest}£`;
 };
-
-calcDisplaySummary(account1.movements);
 
 function createUserName(accs) {
   accs.forEach(acc => {
@@ -114,41 +109,34 @@ function createUserName(accs) {
       .join('');
   });
 }
+createUserName(accounts);
+
+// Event handler
+let currentAccount;
+btnLogin.addEventListener('click', login);
+
+function login(e) {
+  e.preventDefault();
+  currentAccount = accounts.find(
+    acc => acc.userName === inputLoginUsername.value
+  );
+
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+    // Display UI message
+    labelWelcome.textContent = `Welcome back, ${
+      currentAccount.owner.split(' ')[0]
+    }`;
+    containerApp.style.opacity = 100;
+    inputLoginUsername.value = '';
+    inputLoginPin.value = '';
+    inputLoginPin.blur();
+    // display movements
+    displayMovement(currentAccount.movements);
+    // display balance
+    calcDisplayBalance(currentAccount.movements);
+    // display summary
+    calcDisplaySummary(currentAccount);
+  }
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// createUserName(accounts);
-// console.log(accounts);
-
-/*
-
-// filter method
-
-const movements = [5000, 3400, -150, -790, -3210, -1000, 8500, -30];
-const deposits = movements.filter(function (mov) {
-  return mov > 0;
-});
-// console.log(deposits);
-
-const balance = movements.reduce(function (acc, cur) {
-  return acc + cur;
-}, 0);
-console.log(balance);
-
-let balance2 = 0;
-for (const mov of movements) {
-  balance2 += mov;
-}
-console.log(balance2);
-const movements = [5000, 3400, -150, -790, -3210, -1000, 8500, -30];
-
-const eurToUsd = 1.1;
-
-const movementUSD = movements.map(function (mov) {
-  return mov * eurToUsd;
-});
-
-console.log(movements);
-
-console.log(movementUSD);
-
-*/
