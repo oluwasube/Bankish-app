@@ -60,9 +60,10 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
-const displayMovement = function (movements) {
+const displayMovement = function (movements, sort = false) {
   containerMovements.innerHTML = '';
-  movements.map(mov => {
+  const movSort = sort ? movements.slice().sort((a, b) => a - b) : movements;
+  movSort.map(mov => {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
     const html = ` <div class="movements__row">
           <div class="movements__type movements__type--${type}">${type}</div>
@@ -162,9 +163,44 @@ btnTransfer.addEventListener('click', function (e) {
     currentAccount.movements.push(-amount);
     receiverAcc.movements.push(amount);
   }
-
   // update ui
   updateUi(currentAccount);
+});
+
+btnLoan.addEventListener('click', function (e) {
+  e.preventDefault();
+  const amount = Number(inputLoanAmount.value);
+  if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
+  }
+  // Add requestd loan to movement
+  currentAccount.movements.push(amount);
+  // Update Ui
+  updateUi(currentAccount);
+  inputLoanAmount.value = '';
+});
+
+btnClose.addEventListener('click', function (e) {
+  e.preventDefault();
+  if (
+    inputCloseUsername.value === currentAccount.userName &&
+    Number(inputClosePin.value === currentAccount.pin)
+  ) {
+    const index = accounts.findIndex(
+      acc => acc.username === currentAccount.username
+    );
+    // Delete account
+    accounts.splice(index, 1);
+    // Hide Ui
+    containerApp.style.opacity = 0;
+  }
+  inputTransferAmount.value = inputTransferTo.value = '';
+});
+
+let sorted = false;
+btnSort.addEventListener('click', function (e) {
+  e.preventDefault();
+  displayMovement(currentAccount.movements, !sorted);
+  sorted = !sorted;
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
